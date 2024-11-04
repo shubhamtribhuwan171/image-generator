@@ -1,0 +1,42 @@
+<!-- templates/gallery.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - AI Image Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav">
+        <h2>AI Image Gallery</h2>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="gallery">
+            {% for image in images %}
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename=image.image_path) }}" 
+                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'"
+                     alt="{{ image.prompt }}">
+                <div class="gallery-item-content">
+                    <p class="prompt">{{ image.prompt }}</p>
+                    <p class="date">{{ image.generated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <p>No images found. Start generating some amazing images!</p>
+                <a href="{{ url_for('image.generate') }}" class="btn btn-primary">Generate Images</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

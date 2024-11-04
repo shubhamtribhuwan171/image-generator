@@ -1,0 +1,113 @@
+<!-- templates/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Image Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-dark">
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">AI Image Generator</div>
+            </div>
+
+            <div class="sidebar-menu">
+                <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('image.generate') }}" class="menu-item">
+                    <i class="fas fa-plus"></i>
+                    <span>Generate</span>
+                </a>
+                <a href="#settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ user.username }}</span>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1>Welcome back, {{ user.username }}! 👋</h1>
+                <p>Ready to create something amazing today?</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stats-card">
+                    <i class="fas fa-images stats-icon"></i>
+                    <h3>Your Images</h3>
+                    <p class="stats-number">{{ user.images|length }}</p>
+                </div>
+                
+                <div class="stats-card">
+                    <i class="fas fa-clock stats-icon"></i>
+                    <h3>Last Generated</h3>
+                    <p class="stats-text">
+                        {% if user.images %}
+                            {{ user.images[-1].generated_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            No images yet
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="quick-actions-card">
+                    <h3>Quick Actions</h3>
+                    <div class="quick-actions">
+                        <a href="{{ url_for('image.generate') }}" class="action-btn">
+                            <i class="fas fa-magic"></i>
+                            <span>New Image</span>
+                        </a>
+                        <a href="{{ url_for('image.gallery') }}" class="action-btn">
+                            <i class="fas fa-images"></i>
+                            <span>View Gallery</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-images">
+                <h2>Recent Creations</h2>
+                <div class="image-grid">
+                    {% for image in user.images[-4:]|reverse %}
+                    <div class="image-card">
+                        <img src="{{ url_for('static', filename=image.image_path) }}" 
+                             alt="{{ image.prompt }}"
+                             loading="lazy">
+                        <div class="image-overlay">
+                            <p>{{ image.prompt[:100] }}{% if image.prompt|length > 100 %}...{% endif %}</p>
+                            <span class="date">{{ image.generated_at.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-image"></i>
+                        <p>No images yet. Start creating!</p>
+                        <a href="{{ url_for('image.generate') }}" class="btn btn-primary">Generate Images</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

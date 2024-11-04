@@ -1,0 +1,101 @@
+<!-- templates/landing.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator - Create Stunning Images with AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gradient">
+    <nav class="nav">
+        <a href="/" class="nav-brand">
+            <i class="fas fa-brain"></i> AI Image Generator
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up Free</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Transform Your Ideas Into Stunning Images</h1>
+            <p class="hero-subtitle">Create beautiful, unique images in seconds using the power of AI</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    Get Started Free <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#features" class="btn btn-secondary btn-lg">
+                    Learn More <i class="fas fa-info-circle"></i>
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <!-- Add a sample generated image or illustration here -->
+            <img src="{{ url_for('static', filename='images/hero-image.png') }}" alt="AI Generated Art">
+        </div>
+    </div>
+
+    <section id="features" class="features">
+        <h2>Why Choose Our AI Image Generator?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3>Lightning Fast</h3>
+                <p>Generate unique images in seconds with our advanced AI technology</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-magic feature-icon"></i>
+                <h3>Endless Possibilities</h3>
+                <p>Create any style or type of image you can imagine</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-lock feature-icon"></i>
+                <h3>Secure & Private</h3>
+                <p>Your creations are protected and remain private</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="cta-content">
+            <h2>Ready to Start Creating?</h2>
+            <p>Join thousands of creators using AI to bring their ideas to life</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                Start Creating Now <i class="fas fa-rocket"></i>
+            </a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>AI Image Generator</h3>
+                <p>Transform your ideas into stunning visuals with AI</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Sign Up</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> support@aiimages.com</li>
+                    <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 AI Image Generator. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

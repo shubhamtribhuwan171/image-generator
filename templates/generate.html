@@ -1,0 +1,231 @@
+<!-- templates/generate.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-dark">
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">AI Image Generator</div>
+            </div>
+
+            <form method="POST" class="generation-form" id="generateForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label>Model</label>
+                    <div class="select-wrapper">
+                        <select name="model" class="form-control">
+                            <option value="flux1">🌟 FLUX.1 [schnell]</option>
+                            <option value="flux-pro">FLUX.1 pro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Prompt</label>
+                    {{ form.prompt(class="form-control prompt-input", rows=6, 
+                        placeholder="Enter your prompt here...") }}
+                </div>
+
+                <div class="form-group">
+                    <label>Aspect ratio</label>
+                    <div class="select-wrapper">
+                        <select name="aspect_ratio" class="form-control">
+                            <option value="9:16">9:16 (720 px × 1280 px)</option>
+                            <option value="1:1">1:1 (1024 px × 1024 px)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Number of images</label>
+                    <div class="number-selector">
+                        {% for num in [1, 2, 3, 4, 6, 8, 10] %}
+                        <button type="button" 
+                                class="num-btn {% if num == 2 %}active{% endif %}"
+                                onclick="selectNumImages(this, {{ num }})">
+                            {{ num }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </form>
+
+            <div class="sidebar-footer">
+                <button type="submit" form="generateForm" class="create-btn" id="generateBtn">
+                    Create 2 images
+                    <span class="shortcut">ALT + ↵</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="user-menu">
+                    <button class="user-btn">
+                        <i class="fas fa-user-circle"></i>
+                        {{ current_user.username }}
+                    </button>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="image-grid" id="imageGrid">
+                {% for image in images %}
+                <div class="image-card" onclick="showImageDetails({{ image.id }})" data-image-id="{{ image.id }}">
+                    <img src="{{ url_for('static', filename=image.image_path) }}" 
+                         alt="{{ image.prompt }}"
+                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
+                    <div class="image-info">
+                        <p class="image-prompt">{{ image.prompt }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Details Modal -->
+    <div id="imageModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalPrompt"></h3>
+                <button onclick="closeModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="" class="modal-img">
+                <div class="modal-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Created</span>
+                        <span id="modalDate" class="detail-value"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Model</span>
+                        <span id="modalModel" class="detail-value"></span>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="action-btn" onclick="downloadImage()">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="action-btn" onclick="shareImage()">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteImage(currentImageId)">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedNumImages = 2;
+        let currentImageId = null;
+
+        function selectNumImages(btn, num) {
+            document.querySelectorAll('.num-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            selectedNumImages = num;
+            document.getElementById('generateBtn').textContent = `Create ${num} images`;
+        }
+
+        function showImageDetails(imageId) {
+            currentImageId = imageId;  // Store the current image ID
+            fetch(`/image/api/images/${imageId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch image details');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('modalImage').src = data.image_path;
+                    document.getElementById('modalPrompt').textContent = data.prompt;
+                    document.getElementById('modalDate').textContent = data.created_at;
+                    document.getElementById('modalModel').textContent = data.model;
+                    document.getElementById('imageModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to load image details', 'error');
+                });
+        }
+
+        function deleteImage(imageId) {
+            if (!confirm('Are you sure you want to delete this image? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch(`/image/api/images/${imageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to delete image');
+                return response.json();
+            })
+            .then(data => {
+                // Close the modal
+                closeModal();
+                
+                // Remove the image from the gallery
+                const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+                if (imageElement) {
+                    imageElement.remove();
+                }
+                
+                showNotification('Image deleted successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to delete image', 'error');
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            currentImageId = null;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Form submission with loading state
+        document.getElementById('generateForm').addEventListener('submit', function() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        });
+    </script>
+</body>
+</html>
