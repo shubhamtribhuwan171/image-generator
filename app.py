@@ -3,6 +3,7 @@ from flask_cors import CORS
 from models import db
 from routes.image import image_bp
 from routes.auth import auth_bp
+from routes.sample import sample_bp
 from flask_login import LoginManager
 import os
 from dotenv import load_dotenv
@@ -28,6 +29,7 @@ login_manager.login_view = 'auth.login'
 # Register blueprints
 app.register_blueprint(image_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(sample_bp)
 
 @app.route('/')
 def home():
